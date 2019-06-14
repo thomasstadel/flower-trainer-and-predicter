@@ -156,7 +156,7 @@ class pretrained_model:
 
 class pretrained_model_load(pretrained_model):
 
-    def __init__(self, filename):
+    def __init__(self, filename, gpu):
 
         # Check if file exists
         if os.path.isfile(filename) == False:
@@ -164,10 +164,14 @@ class pretrained_model_load(pretrained_model):
             exit()
 
         # Load checkpoint
-        checkpoint = torch.load(filename)
+        checkpoint = torch.load(filename, map_location="cuda:0" if gpu else "cpu")
 
         # Call __init__ of the extended class
         super().__init__(checkpoint["model"], checkpoint["hidden_units"], checkpoint["learning_rate"], checkpoint["class_to_idx"])
+
+        # Device
+        if gpu:
+            self.gpu()
 
         # Load state dict to model
         self.model.load_state_dict(checkpoint["state_dict"])

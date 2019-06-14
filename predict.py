@@ -3,6 +3,7 @@ import argparse
 import model
 import os
 import dataloader
+import time
 
 # Get parameters
 parser = argparse.ArgumentParser(prog = "python predict.py", usage="%(prog)s /path/to/image checkpoint-file")
@@ -25,7 +26,7 @@ if args.category_names != "" and os.path.isfile(args.category_names) == False:
     exit()
 
 # Setup and load model
-mymodel = model.pretrained_model_load(args.checkpoint)
+mymodel = model.pretrained_model_load(args.checkpoint, args.gpu)
 if args.gpu:
     if mymodel.gpu() == False:
         print("No CUDA compatible GPU available. Try without --gpu parameter.")
@@ -35,6 +36,12 @@ if args.gpu:
 img = dataloader.load_and_proces_image(args.image)
 
 # Predict image
+start_time = time.time()
+print(f"Predicting, parameters:")
+print(f"    image file:     {args.image}")
+print(f"    architecture:   {mymodel.modelname}")
+print(f"    device:         {mymodel.device}")
+print(" ")
 probs, classes = mymodel.predict(img, args.top_k)
 
 # Should we use class to names?
@@ -49,3 +56,6 @@ for cls, prob in zip(classes, probs):
         cls = cat_to_name[cls]
 
     print(f"{cls:<25}{prob:.3f}")
+
+print(" ")
+print(f"Total time: {time.time() - start_time:.3f} sec")

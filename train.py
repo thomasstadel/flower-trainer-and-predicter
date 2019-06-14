@@ -45,6 +45,8 @@ if args.gpu:
     if mymodel.gpu() == False:
         print("No CUDA compatible GPU available. Try without --gpu parameter.")
         exit()
+else:
+    mymodel.cpu()
 
 # Training
 start_time = time.time()
